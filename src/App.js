@@ -67,13 +67,13 @@ class App extends Component {
           containerStyle={mapStyle}
           center={[-73.935242, 40.730610]}
         >
-          <GeoJSONLayer
-            data={zipOn ? null:geo}
+          {zipOn ? <GeoJSONLayer
+            data={geo}
             lineLayout={lineLayout}
             linePaint={linePaint}
             symbolLayout={symbolLayout}
             symbolPaint={symbolPaint}
-          />
+          />:null}
         </Map>
       </div>
     );
