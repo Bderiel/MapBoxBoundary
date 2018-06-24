@@ -47,18 +47,17 @@ class App extends Component {
   componentDidMount() {
     axios.get('https://raw.githubusercontent.com/OpenDataDE/State-zip-code-GeoJSON/master/ny_new_york_zip_codes_geo.min.json')
       .then(res =>{
-        this.setState({ geo: res.data })
-        console.log(res.data,'res')
-        
+        this.setState({ geo: res.data })        
       })
   }
   handleClick = () =>{
     const { geo,zipcode } = this.state;
     const allzip = geo.features.filter(el => el.properties.ZCTA5CE10 === zipcode)
-    console.log(allzip,'ss')
+    console.log(allzip,'all')
+    if(!allzip.length) return;
     this.setState({
       center: allzip[0].geometry.coordinates[0][0],
-      currZip: { ...this.state.geo, features:allzip}
+      currZip: { ...this.state.geo, features:allzip }
 })
   }
   handleChange = (evt) =>{
@@ -69,7 +68,6 @@ class App extends Component {
 
   render() {
     const { zipcode, geo, center, currZip } = this.state
-    console.log(currZip)
     return (
       <div>
         <input onChange={this.handleChange}/>
