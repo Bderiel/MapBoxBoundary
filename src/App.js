@@ -15,18 +15,6 @@ const mapStyle = {
   width: '100vw',
 };
 
-const symbolLayout = {
-  'text-field': '{place}',
-  'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-  'text-offset': [0, 0.6],
-  'text-anchor': 'top',
-};
-
-const lineLayout = {
-  'fill-color': 'blue',
-  // 'line-join': 'round',
-};
-
 const linePaint = {
   'line-color': 'red',
   'line-width': 3,
@@ -59,9 +47,7 @@ class App extends Component {
     const { geo,zipcode } = this.state;
     const allzip = geo.features.filter(el => el.properties.ZCTA5CE10 === zipcode)
     if(!allzip.length) return;
-    console.log(allzip)
     const center = allzip[0].geometry.type === 'Polygon' ? allzip[0].geometry.coordinates[0][0] : allzip[0].geometry.coordinates[0][0][0]
-    console.log(center,'center')
     this.setState({
       center: center,
       currZip: { ...this.state.geo, features:allzip },
@@ -79,7 +65,7 @@ class App extends Component {
     return (
       <div>
         <input onChange={this.handleChange}/>
-        <button onClick={this.handleClick}>Search</button>
+        <button disabled={!geo} onClick={this.handleClick}>Search</button>
         <Map
           style={style}
           containerStyle={mapStyle}
