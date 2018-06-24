@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactMapboxGl, { Layer, GeoJSONLayer } from 'react-mapbox-gl';
 import axios from 'axios';
 
+
 const accessToken = 'pk.eyJ1IjoiYWxleDMxNjUiLCJhIjoiY2o0MHp2cGtiMGFrajMycG5nbzBuY2pjaiJ9.QDApU0XH2v35viSwQuln5w';
 const style = 'mapbox://styles/mapbox/streets-v9';
 
@@ -31,6 +32,10 @@ const linePaint = {
   'line-width': 3,
 };
 
+const fillPaint = {
+  'fill-color': 'green',
+}
+
 
 class App extends Component {
   constructor() {
@@ -39,25 +44,28 @@ class App extends Component {
       geo: null,
       center: [-73.935242, 40.730610],
       zipcode:'',
-      currZip:null
-
+      currZip:null,
+      zoom: [11],
     };
   }
 
   componentDidMount() {
     axios.get('https://raw.githubusercontent.com/OpenDataDE/State-zip-code-GeoJSON/master/ny_new_york_zip_codes_geo.min.json')
       .then(res =>{
-        this.setState({ geo: res.data })        
+        this.setState({ geo: res.data })      
       })
   }
   handleClick = () =>{
     const { geo,zipcode } = this.state;
     const allzip = geo.features.filter(el => el.properties.ZCTA5CE10 === zipcode)
-    console.log(allzip,'all')
     if(!allzip.length) return;
+    console.log(allzip)
+    const center = allzip[0].geometry.type === 'Polygon' ? allzip[0].geometry.coordinates[0][0] : allzip[0].geometry.coordinates[0][0][0]
+    console.log(center,'center')
     this.setState({
-      center: allzip[0].geometry.coordinates[0][0],
-      currZip: { ...this.state.geo, features:allzip }
+      center: center,
+      currZip: { ...this.state.geo, features:allzip },
+      zoom: [12]
 })
   }
   handleChange = (evt) =>{
@@ -67,7 +75,7 @@ class App extends Component {
   }
 
   render() {
-    const { zipcode, geo, center, currZip } = this.state
+    const { zipcode, geo, center, currZip,zoom } = this.state
     return (
       <div>
         <input onChange={this.handleChange}/>
@@ -76,6 +84,7 @@ class App extends Component {
           style={style}
           containerStyle={mapStyle}
           center={center}
+          zoom={zoom}
         >
           <GeoJSONLayer
             data={currZip}
