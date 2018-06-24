@@ -22,8 +22,8 @@ const symbolLayout = {
 };
 
 const lineLayout = {
-  'line-cap': 'round',
-  'line-join': 'round',
+  'fill-color': 'blue',
+  // 'line-join': 'round',
 };
 
 const linePaint = {
@@ -31,49 +31,58 @@ const linePaint = {
   'line-width': 3,
 };
 
-const symbolPaint = {
-  'text-color': 'red',
-};
-
-const circleLayout = { visibility: 'visible' };
-const circlePaint = {
-  'circle-color': 'red',
-};
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
       geo: null,
-      zipOn: false,
+      center: [-73.935242, 40.730610],
+      zipcode:'',
+      currZip:null
+
     };
   }
 
   componentDidMount() {
     axios.get('https://raw.githubusercontent.com/OpenDataDE/State-zip-code-GeoJSON/master/ny_new_york_zip_codes_geo.min.json')
-      .then(res => this.setState({ geo: res.data }));
+      .then(res =>{
+        this.setState({ geo: res.data })
+        console.log(res.data,'res')
+        
+      })
   }
   handleClick = () =>{
-    const { zipOn } = this.state;
-    this.setState({zipOn:!zipOn})
+    const { geo,zipcode } = this.state;
+    const allzip = geo.features.filter(el => el.properties.ZCTA5CE10 === zipcode)
+    console.log(allzip,'ss')
+    this.setState({
+      center: allzip[0].geometry.coordinates[0][0],
+      currZip: { ...this.state.geo, features:allzip}
+})
   }
+  handleChange = (evt) =>{
+    this.setState({
+      zipcode:evt.target.value,
+    })
+  }
+
   render() {
-    const { zipOn,geo } = this.state
+    const { zipcode, geo, center, currZip } = this.state
+    console.log(currZip)
     return (
       <div>
-        <button onClick={this.handleClick}>{zipOn + ''}</button>
+        <input onChange={this.handleChange}/>
+        <button onClick={this.handleClick}>Search</button>
         <Map
           style={style}
           containerStyle={mapStyle}
-          center={[-73.935242, 40.730610]}
+          center={center}
         >
-          {zipOn ? <GeoJSONLayer
-            data={geo}
-            lineLayout={lineLayout}
+          <GeoJSONLayer
+            data={currZip}
             linePaint={linePaint}
-            symbolLayout={symbolLayout}
-            symbolPaint={symbolPaint}
-          />:null}
+          />
         </Map>
       </div>
     );
